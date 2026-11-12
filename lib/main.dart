@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:taskee/app/theme/app_theme.dart';
@@ -14,6 +13,8 @@ import 'package:taskee/features/todo/presentation/bloc/todo_event.dart';
 import 'package:taskee/di/dependency_injection.dart';
 import 'package:taskee/features/todo/data/datasource/hive_todo_local_datasource.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+// استيراد الـ UserCubit الجديد
+import 'package:taskee/features/todo/presentation/bloc/user_cubit.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,7 +32,6 @@ Future<void> main() async {
     hiveNoteLocalDatasource: hiveNoteLocalDatasource,
   );
 
-  // ← load saved tab before app starts
   final prefs = await SharedPreferences.getInstance();
   final savedTab = prefs.getInt('selected_tab') ?? 0;
 
@@ -51,11 +51,6 @@ class MyAppState extends State<MyApp> {
   final NoteBloc noteBloc = getIt<NoteBloc>();
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   void dispose() {
     Hive.close();
     super.dispose();
@@ -68,11 +63,12 @@ class MyAppState extends State<MyApp> {
         BlocProvider(create: (_) => TabCubit(initialTab: widget.initialTab)),
         BlocProvider(create: (_) => todoBloc..add(TodoStartedEvent())),
         BlocProvider(create: (_) => noteBloc..add(NoteStartedEvent())),
+        // إضافة UserCubit هنا
+        BlocProvider(create: (_) => UserCubit()),
       ],
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-
         child: MaterialApp.router(
           title: 'Taskee',
           theme: AppTheme.dark,
