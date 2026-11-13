@@ -71,16 +71,11 @@ class UserInfoWidget extends StatelessWidget {
                   ),
                   8.kW,
                   
-                  // زر تعديل الملف الشخصي
+                  // زر تعديل الملف الشخصي (يفتح الآن في المنتصف)
                   GestureDetector(
                     onTap: () {
-                      showModalBottomSheet(
+                      showDialog(
                         context: context,
-                        backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                        ),
-                        isScrollControlled: true,
                         builder: (_) => BlocProvider.value(
                           value: context.read<UserCubit>(),
                           child: const EditProfileSheet(),
