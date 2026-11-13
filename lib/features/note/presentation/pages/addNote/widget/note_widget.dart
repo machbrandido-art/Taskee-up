@@ -37,16 +37,13 @@ class _NoteWidgetState extends State<NoteWidget> {
 
           if (notes.isEmpty) {
             return Center(
-              child: Image.asset(
-                AppAssets.noDataImg,
-                height: context.screenHeight * .25,
-              ),
+              child: Image.asset(AppAssets.noDataImg, height: context.screenHeight * .25),
             );
           }
 
           final size = MediaQuery.of(context).size;
-          final cardW = size.width * 0.5;
-          final cardH = size.height * 0.4;
+          final cardW = size.width * 0.75;
+          final cardH = size.height * 0.45;
 
           return CardSwiper(
             controller: _controller,
@@ -55,33 +52,21 @@ class _NoteWidgetState extends State<NoteWidget> {
             numberOfCardsDisplayed: notes.length.clamp(1, 3),
             maxAngle: 50,
             threshold: 50,
-            padding: const EdgeInsets.only(
-              left: 40,
-              bottom: 130,
-              right: 40,
-              top: 30,
-            ),
-
-            cardBuilder:
-                (context, index, percentThresholdX, percentThresholdY) {
-                  final note = notes[index];
-
-                  return GestureDetector(
-                    onTap: () => context.gotTo(
-                      CreateTaskOrNoteScreen(
-                        note: note,
-                        isUpdateTaskscreen: true,
-                      ),
-                    ),
-                    child: NoteCard(
-                      note: note,
-
-                      cardW: cardW,
-                      cardH: cardH,
-                      onDelete: () {},
-                    ),
-                  );
-                },
+            padding: const EdgeInsets.only(left: 40, bottom: 130, right: 40, top: 30),
+            cardBuilder: (context, index, percentThresholdX, percentThresholdY) {
+              final note = notes[index];
+              return GestureDetector(
+                onTap: () => context.gotTo(
+                  CreateTaskOrNoteScreen(note: note, isUpdateTaskscreen: true),
+                ),
+                child: NoteCard(
+                  note: note,
+                  cardW: cardW,
+                  cardH: cardH,
+                  onDelete: () {},
+                ),
+              );
+            },
             onSwipe: (previousIndex, currentIndex, direction) => true,
           );
         }

@@ -8,6 +8,8 @@ class GlassContainer extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final EdgeInsetsGeometry? margin;
   final double borderRadius;
+  final double? width;   // أضفنا هذا
+  final double? height;  // أضفنا هذا
 
   const GlassContainer({
     super.key,
@@ -17,13 +19,14 @@ class GlassContainer extends StatelessWidget {
     this.padding,
     this.margin,
     this.borderRadius = 24.0,
+    this.width,
+    this.height,
   });
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
-    // في الوضع الداكن: زجاج أسود شفاف. في الفاتح: زجاج أبيض شفاف
     final bgColor = isDark 
         ? Colors.black.withValues(alpha: opacity) 
         : Colors.white.withValues(alpha: opacity + 0.2);
@@ -33,6 +36,8 @@ class GlassContainer extends StatelessWidget {
 
     return Container(
       margin: margin,
+      width: width,
+      height: height,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(borderRadius),
         child: BackdropFilter(

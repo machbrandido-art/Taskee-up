@@ -8,7 +8,7 @@ import 'package:taskee/app/theme/app_typography.dart';
 import 'package:taskee/features/todo/presentation/cubit/taskform_cubit.dart';
 import 'package:taskee/features/todo/presentation/pages/add/widgets/time_date_picker_widget.dart';
 import 'package:taskee/features/widget/app_button.dart';
-
+import 'package:taskee/features/widget/glass_container.dart';
 import '../../../../domain/entities/todo.dart';
 import '../../../bloc/todo_bloc.dart';
 import '../../../bloc/todo_event.dart';
@@ -17,12 +17,10 @@ import 'package:taskee/app/helper/title_field_validator.dart';
 
 class CreateOrUpdateTaskWidget extends StatefulWidget {
   final Todo? todo;
-
   const CreateOrUpdateTaskWidget({super.key, this.todo});
 
   @override
-  CreateOrUpdateTaskWidgetState createState() =>
-      CreateOrUpdateTaskWidgetState();
+  CreateOrUpdateTaskWidgetState createState() => CreateOrUpdateTaskWidgetState();
 }
 
 class CreateOrUpdateTaskWidgetState extends State<CreateOrUpdateTaskWidget> {
@@ -38,90 +36,76 @@ class CreateOrUpdateTaskWidgetState extends State<CreateOrUpdateTaskWidget> {
   @override
   Widget build(BuildContext context) {
     final isUpdating = widget.todo != null;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return BlocProvider(
       create: (_) => TaskFormCubit(widget.todo?.dueAt),
       child: Builder(
         builder: (context) {
           return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                BlocBuilder<TodoBloc, TodoState>(
-                  builder: (context, state) {
-                    return Form(
-                      key: _todoFormKey,
-                      child: ListView(
-                        shrinkWrap: true,
-                        children: [
-                          30.kH,
-                          const Text('Title'),
-                          10.kH,
-                          TextFormField(
-                            textInputAction: TextInputAction.done,
-                            onFieldSubmitted: (_) =>
-                                FocusManager.instance.primaryFocus?.unfocus(),
-
-                            key: const Key('addTodo_title_textFormField'),
-                            controller: _titleController,
-                            maxLines: 1,
-
-                            validator: todoFieldValidator,
-                            decoration: InputDecoration(
-                              hintText: 'Write Task title ...',
-                              hintStyle: AppTypography.bodyMd.copyWith(
-                                color: AppColors.kgrey,
-                              ),
-                            ),
+            child: GlassContainer(
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.all(20),
+              child: BlocBuilder<TodoBloc, TodoState>(
+                builder: (context, state) {
+                  return Form(
+                    key: _todoFormKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Title', style: AppTypography.h4.copyWith(color: isDark ? Colors.white : Colors.black)),
+                        10.kH,
+                        TextFormField(
+                          textInputAction: TextInputAction.done,
+                          onFieldSubmitted: (_) => FocusManager.instance.primaryFocus?.unfocus(),
+                          controller: _titleController,
+                          maxLines: 1,
+                          validator: todoFieldValidator,
+                          style: TextStyle(color: isDark ? Colors.white : Colors.black),
+                          decoration: InputDecoration(
+                            hintText: 'Write Task title ...',
+                            hintStyle: AppTypography.bodyMd.copyWith(color: isDark ? Colors.white54 : Colors.black45),
                           ),
-                          30.kH,
-                          const Text('Time & Date (required)'),
-                          10.kH,
-                          BlocBuilder<TaskFormCubit, DateTime?>(
-                            builder: (context, dueAt) {
-                              return DueAtPicker(
-                                dueAt: dueAt,
-                                onChanged: (value) {
-                                  FocusManager.instance.primaryFocus?.unfocus();
-                                  context.read<TaskFormCubit>().updateDueAt(
-                                    value,
-                                  );
-                                },
-                              );
-                            },
-                          ),
-                          60.kH,
-
-                          AppButton(
-                            text: isUpdating ? 'Update Task' : 'Create Task',
-                            onTap: () async {
-                              final dueAt = context.read<TaskFormCubit>().state;
-                              if (_todoFormKey.currentState!.validate() &&
-                                  dueAt != null) {
-                                if (isUpdating) {
-                                  _updateTodo(context, dueAt);
-                                } else {
-                                  await _addTodo(context, dueAt);
-                                }
-                                if (context.mounted) context.pop();
-                              } else if (dueAt == null) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'Please select due date and time.',
-                                    ),
-                                  ),
-                                );
+                        ),
+                        30.kH,
+                        Text('Time & Date (required)', style: AppTypography.h4.copyWith(color: isDark ? Colors.white : Colors.black)),
+                        10.kH,
+                        BlocBuilder<TaskFormCubit, DateTime?>(
+                          builder: (context, dueAt) {
+                            return DueAtPicker(
+                              dueAt: dueAt,
+                              onChanged: (value) {
+                                FocusManager.instance.primaryFocus?.unfocus();
+                                context.read<TaskFormCubit>().updateDueAt(value);
+                              },
+                            );
+                          },
+                        ),
+                        40.kH,
+                        AppButton(
+                          text: isUpdating ? 'Update Task' : 'Create Task',
+                          onTap: () async {
+                            final dueAt = context.read<TaskFormCubit>().state;
+                            if (_todoFormKey.currentState!.validate() && dueAt != null) {
+                              if (isUpdating) {
+                                _updateTodo(context, dueAt);
+                              } else {
+                                await _addTodo(context, dueAt);
                               }
-                            },
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ).paddingSymmetric(horizontal: 20),
+                              if (context.mounted) context.pop();
+                            } else if (dueAt == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Please select due date and time.')),
+                              );
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
           );
         },
       ),
@@ -129,22 +113,12 @@ class CreateOrUpdateTaskWidgetState extends State<CreateOrUpdateTaskWidget> {
   }
 
   Future<void> _addTodo(BuildContext context, DateTime dueAt) async {
-    final todo = Todo(
-      id: 0,
-      title: _titleController.text,
-      isCompleted: false,
-      dueAt: dueAt,
-    );
+    final todo = Todo(id: 0, title: _titleController.text, isCompleted: false, dueAt: dueAt);
     context.read<TodoBloc>().add(TodoItemAddedEvent(todo));
   }
 
   void _updateTodo(BuildContext context, DateTime dueAt) {
-    final todo = Todo(
-      id: widget.todo!.id,
-      title: _titleController.text,
-      isCompleted: widget.todo!.isCompleted,
-      dueAt: dueAt,
-    );
+    final todo = Todo(id: widget.todo!.id, title: _titleController.text, isCompleted: widget.todo!.isCompleted, dueAt: dueAt);
     context.read<TodoBloc>().add(TodoItemUpdatedEvent(todo));
   }
 }

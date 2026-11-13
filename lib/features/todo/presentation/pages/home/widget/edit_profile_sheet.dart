@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:taskee/features/todo/presentation/bloc/user_cubit.dart';
+import 'package:taskee/features/widget/glass_container.dart';
 
 class EditProfileSheet extends StatefulWidget {
   const EditProfileSheet({super.key});
@@ -33,13 +34,10 @@ class _EditProfileSheetState extends State<EditProfileSheet> {
   Future<void> _pickImage() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    
     if (pickedFile != null) {
-      // نسخ الصورة إلى مجلد التطبيق لضمان بقائها دائماً
       final appDir = await getApplicationDocumentsDirectory();
       final fileName = 'profile_${DateTime.now().millisecondsSinceEpoch}.jpg';
       final savedImage = await File(pickedFile.path).copy('${appDir.path}/$fileName');
-      
       setState(() {
         _tempImagePath = savedImage.path;
       });
@@ -48,21 +46,19 @@ class _EditProfileSheetState extends State<EditProfileSheet> {
 
   void _save() {
     final newName = _nameController.text.trim();
-    if (newName.isEmpty) return; // منع الحفظ إذا كان الاسم فارغاً
-
-    context.read<UserCubit>().updateUser(
-      name: newName,
-      imagePath: _tempImagePath,
-    );
-    
-    Navigator.pop(context); // إغلاق النافذة
+    if (newName.isEmpty) return;
+    context.read<UserCubit>().updateUser(name: newName, imagePath: _tempImagePath);
+    Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return GlassContainer(
+      margin: const EdgeInsets.only(left: 16, right: 16, bottom: 24),
       padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
         left: 20,
         right: 20,
         top: 20,
@@ -70,53 +66,54 @@ class _EditProfileSheetState extends State<EditProfileSheet> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
+          Text(
             'تعديل الملف الشخصي',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : Colors.black,
+            ),
           ),
           const SizedBox(height: 20),
           GestureDetector(
             onTap: _pickImage,
             child: CircleAvatar(
               radius: 50,
-              backgroundColor: Colors.white10,
-              backgroundImage: _tempImagePath != null
-                  ? FileImage(File(_tempImagePath!))
-                  : null,
+              backgroundColor: isDark ? Colors.white10 : Colors.black12,
+              backgroundImage: _tempImagePath != null ? FileImage(File(_tempImagePath!)) : null,
               child: _tempImagePath == null
-                  ? const Icon(Icons.camera_alt, color: Colors.white, size: 30)
+                  ? Icon(Icons.camera_alt, color: isDark ? Colors.white : Colors.black, size: 30)
                   : null,
             ),
           ),
           const SizedBox(height: 20),
           TextField(
             controller: _nameController,
-            style: const TextStyle(color: Colors.white),
-            decoration: const InputDecoration(
+            style: TextStyle(color: isDark ? Colors.white : Colors.black),
+            decoration: InputDecoration(
               labelText: 'الاسم',
-              labelStyle: TextStyle(color: Colors.grey),
+              labelStyle: TextStyle(color: isDark ? Colors.white54 : Colors.black54),
               enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey),
+                borderSide: BorderSide(color: isDark ? Colors.white30 : Colors.black26),
               ),
-              focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
+              focusedBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.green), // أو لون الـ Accent
               ),
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
               onPressed: _save,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.black,
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: isDark ? Colors.black : Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 15),
               ),
               child: const Text('حفظ', style: TextStyle(fontWeight: FontWeight.bold)),
             ),
           ),
-          const SizedBox(height: 20),
         ],
       ),
     );

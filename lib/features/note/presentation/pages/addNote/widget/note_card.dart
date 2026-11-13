@@ -1,17 +1,10 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:taskee/app/extension/capital_firstletter_extension.dart';
 import 'package:taskee/features/note/domain/entities/note.dart';
-
-const _kAccentLight = Color(0xFFD8E87C);
-const _kGlassBorder = Color(0x44FFFFFF);
-const _kTextDark = Color(0xFF1A1A1A);
-const _kTextLight = Color(0xFFEFEFEF);
+import 'package:taskee/features/widget/glass_container.dart';
 
 class NoteCard extends StatelessWidget {
   final Note note;
-
   final double cardW;
   final double cardH;
   final VoidCallback onDelete;
@@ -19,7 +12,6 @@ class NoteCard extends StatelessWidget {
   const NoteCard({
     super.key,
     required this.note,
-
     required this.cardW,
     required this.cardH,
     required this.onDelete,
@@ -27,50 +19,29 @@ class NoteCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _lightCard(context);
-  }
-
-  // ── Light / accent card (always the front) ──────────────────────────────
-  Widget _lightCard(BuildContext context) {
-    return Container(
-      width: cardW,
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    return GlassContainer(
+      width: cardW, // need to add width/height to GlassContainer
       height: cardH,
-      decoration: BoxDecoration(
-        color: _kAccentLight,
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: _kAccentLight.withValues(alpha: 0.35),
-            blurRadius: 32,
-            offset: const Offset(0, 16),
-          ),
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.18),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
+      borderRadius: 28,
+      opacity: isDark ? 0.15 : 0.4,
       child: _CardContent(
         note: note,
-        textColor: _kTextDark,
-        tagBg: Colors.black.withValues(alpha: 0.12),
-        tagText: _kTextDark.withValues(alpha: 0.7),
-        iconColor: _kTextDark.withValues(alpha: 0.5),
+        textColor: isDark ? Colors.white : Colors.black,
+        tagBg: isDark ? Colors.white12 : Colors.black12,
+        tagText: isDark ? Colors.white70 : Colors.black87,
         onDelete: onDelete,
       ),
     );
   }
 }
 
-// ─── Card Inner Content ───────────────────────────────────────────────────────
-
 class _CardContent extends StatelessWidget {
   final Note note;
   final Color textColor;
   final Color tagBg;
   final Color tagText;
-  final Color iconColor;
   final VoidCallback onDelete;
 
   const _CardContent({
@@ -78,7 +49,6 @@ class _CardContent extends StatelessWidget {
     required this.textColor,
     required this.tagBg,
     required this.tagText,
-    required this.iconColor,
     required this.onDelete,
   });
 
@@ -89,7 +59,6 @@ class _CardContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Top row: icon + delete
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -99,25 +68,18 @@ class _CardContent extends StatelessWidget {
                   color: textColor.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(
-                  Icons.sticky_note_2_outlined,
-                  color: textColor.withValues(alpha: 0.6),
-                  size: 18,
-                ),
+                child: Icon(Icons.sticky_note_2_outlined, color: textColor.withValues(alpha: 0.6), size: 18),
               ),
             ],
           ),
-
           const SizedBox(height: 20),
-
-          // Note body
           Expanded(
             child: Text(
               note.note.capitalizeFirst(),
               style: TextStyle(
                 fontSize: 18,
                 height: 1.55,
-                color: Colors.black,
+                color: textColor,
                 fontWeight: FontWeight.w400,
                 letterSpacing: 0.1,
               ),
@@ -125,10 +87,7 @@ class _CardContent extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-
           const SizedBox(height: 16),
-
-          // Tags row (optional — show first 2 words as tags if note has them)
           if (_extractTags(note.note).isNotEmpty)
             Wrap(
               spacing: 6,
@@ -136,46 +95,36 @@ class _CardContent extends StatelessWidget {
                   .map((t) => _Tag(label: t, bg: tagBg, textColor: tagText))
                   .toList(),
             ),
-
           const SizedBox(height: 14),
-
-          // Footer: timestamp + swipe hint
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 _formatDate(note.createdAt),
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 14, // تصغير الخط ليتناسب مع التصميم
                   color: textColor.withValues(alpha: 0.5),
                   fontWeight: FontWeight.w500,
                   letterSpacing: 0.3,
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.black.withValues(alpha: .2)),
-                  color: Colors.white.withValues(alpha: .3),
+                  border: Border.all(color: textColor.withValues(alpha: .2)),
+                  color: textColor.withValues(alpha: .05),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      Icons.swipe_left_alt_rounded,
-                      size: 13,
-                      color: Colors.black,
-                    ),
+                    Icon(Icons.swipe_left_alt_rounded, size: 14, color: textColor),
                     const SizedBox(width: 4),
                     Text(
                       'swipe',
                       style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.black,
+                        fontSize: 12,
+                        color: textColor,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.5,
                       ),
@@ -191,7 +140,6 @@ class _CardContent extends StatelessWidget {
   }
 
   List<String> _extractTags(String text) {
-    // Simple heuristic: hashtags in text, or default to first keyword
     final regex = RegExp(r'#\w+');
     final matches = regex.allMatches(text).map((m) => m.group(0)!).toList();
     if (matches.isNotEmpty) return matches.take(2).toList();
@@ -206,8 +154,6 @@ class _CardContent extends StatelessWidget {
   }
 }
 
-// ─── Tag Chip ─────────────────────────────────────────────────────────────────
-
 class _Tag extends StatelessWidget {
   final String label;
   final Color bg;
@@ -219,14 +165,11 @@ class _Tag extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(20),
-      ),
+      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(20)),
       child: Text(
         label,
         style: TextStyle(
-          fontSize: 24,
+          fontSize: 12, // كان 24، تم تصغيره
           color: textColor,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.4,
