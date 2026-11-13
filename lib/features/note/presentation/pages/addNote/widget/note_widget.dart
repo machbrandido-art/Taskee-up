@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:taskee/app/extension/context_extension.dart';
-import 'package:taskee/app/theme/app_assets.dart';
 import 'package:taskee/features/note/presentation/bloc/note_bloc.dart';
 import 'package:taskee/features/note/presentation/bloc/note_state.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:taskee/features/note/presentation/pages/addNote/widget/note_card.dart';
 import 'package:taskee/features/todo/presentation/pages/add/create_taskOrNote_screen.dart';
+import 'package:taskee/features/widget/empty_state_widget.dart';
 
 class NoteWidget extends StatefulWidget {
   const NoteWidget({super.key});
@@ -36,8 +36,11 @@ class _NoteWidgetState extends State<NoteWidget> {
           final notes = state.noteModel.noteList;
 
           if (notes.isEmpty) {
-            return Center(
-              child: Image.asset(AppAssets.noDataImg, height: context.screenHeight * .25),
+            // استبدال الصورة بالويدجت الجديد
+            return const EmptyStateWidget(
+              title: 'No Notes Yet',
+              subtitle: 'Your mind is clear.\nCapture a thought by tapping +.',
+              icon: Icons.edit_note_rounded,
             );
           }
 

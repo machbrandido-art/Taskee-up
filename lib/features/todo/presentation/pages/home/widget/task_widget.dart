@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:taskee/app/extension/context_extension.dart';
 import 'package:taskee/app/extension/widget_padding_extension.dart';
-import 'package:taskee/app/theme/app_assets.dart';
 import 'package:taskee/features/todo/domain/entities/todo.dart';
 import 'package:taskee/features/todo/presentation/bloc/todo_bloc.dart';
 import 'package:taskee/features/todo/presentation/bloc/todo_event.dart';
 import 'package:taskee/features/todo/presentation/bloc/todo_state.dart';
 import 'package:taskee/features/todo/presentation/pages/add/create_taskOrNote_screen.dart';
 import 'package:taskee/features/todo/presentation/pages/home/widget/todo_list_item.dart';
+import 'package:taskee/features/widget/empty_state_widget.dart';
 
 class TaskWidget extends StatelessWidget {
   const TaskWidget({super.key});
@@ -26,11 +26,11 @@ class TaskWidget extends StatelessWidget {
         }
         if (state is TodoLoadedState) {
           if (state.todoModel.todoList.isEmpty) {
-            return Center(
-              child: Image.asset(
-                AppAssets.noDataImg,
-                height: context.screenHeight * .25,
-              ),
+            // استبدال الصورة بالويدجت الجديد
+            return const EmptyStateWidget(
+              title: 'All Clear',
+              subtitle: 'You have no tasks today.\nTap the + button to add one.',
+              icon: Icons.task_alt_rounded,
             );
           }
           return ListView.builder(
@@ -51,12 +51,6 @@ class TaskWidget extends StatelessWidget {
                 },
                 onClickDelete: () {
                   context.read<TodoBloc>().add(TodoItemDeletedEvent(todo.id));
-                  // AppUtils.showSnackBar(
-                  //   context: context,
-                  //   message: '${todo.title} is deleted',
-                  //   label: 'Undo',
-                  //   onPress: () => onClickUndo(todo, context),
-                  // );
                 },
                 onToggleComplete: () {
                   context.read<TodoBloc>().add(
