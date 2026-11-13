@@ -6,6 +6,7 @@ import 'package:taskee/features/note/data/datasource/hive_note_local_datasource.
 import 'package:taskee/features/note/presentation/bloc/note_bloc.dart';
 import 'package:taskee/features/note/presentation/bloc/note_event.dart';
 import 'package:taskee/features/shared/cubit/tab_cubit.dart';
+import 'package:taskee/features/shared/cubit/theme_cubit.dart';
 import 'package:taskee/features/todo/data/datasource/notification_service.dart';
 import 'package:taskee/features/todo/presentation/bloc/todo_bloc.dart';
 import 'package:taskee/app/routing/go_router.dart';
@@ -13,7 +14,6 @@ import 'package:taskee/features/todo/presentation/bloc/todo_event.dart';
 import 'package:taskee/di/dependency_injection.dart';
 import 'package:taskee/features/todo/data/datasource/hive_todo_local_datasource.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-// استيراد الـ UserCubit الجديد
 import 'package:taskee/features/todo/presentation/bloc/user_cubit.dart';
 
 Future<void> main() async {
@@ -63,18 +63,24 @@ class MyAppState extends State<MyApp> {
         BlocProvider(create: (_) => TabCubit(initialTab: widget.initialTab)),
         BlocProvider(create: (_) => todoBloc..add(TodoStartedEvent())),
         BlocProvider(create: (_) => noteBloc..add(NoteStartedEvent())),
-        // إضافة UserCubit هنا
         BlocProvider(create: (_) => UserCubit()),
+        BlocProvider(create: (_) => ThemeCubit()),
       ],
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-        child: MaterialApp.router(
-          title: 'Taskee',
-          theme: AppTheme.dark,
-          debugShowCheckedModeBanner: false,
-          routerConfig: goRouter,
-        ),
+      child: BlocBuilder<ThemeCubit, ThemeMode>(
+        builder: (context, themeMode) {
+          return GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+            child: MaterialApp.router(
+              title: 'Taskee',
+              theme: AppTheme.light,
+              darkTheme: AppTheme.dark,
+              themeMode: themeMode,
+              debugShowCheckedModeBanner: false,
+              routerConfig: goRouter,
+            ),
+          );
+        },
       ),
     );
   }

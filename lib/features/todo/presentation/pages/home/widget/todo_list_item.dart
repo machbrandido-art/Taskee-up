@@ -6,6 +6,7 @@ import 'package:taskee/app/extension/size_extension.dart';
 import 'package:taskee/app/theme/app_colors.dart';
 import 'package:taskee/app/theme/app_typography.dart';
 import 'package:taskee/features/todo/domain/entities/todo.dart';
+import 'package:taskee/features/widget/glass_container.dart';
 
 class TodoListItem extends StatelessWidget {
   final Todo todo;
@@ -24,15 +25,17 @@ class TodoListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dueLabel = _dueLabel(context, todo.dueAt);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Dismissible(
       key: Key('deleted_todo_${todo.id}'),
       direction: DismissDirection.endToStart,
       onDismissed: (_) => onClickDelete(),
       background: Container(
+        margin: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
           color: AppColors.error,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(24),
         ),
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
@@ -40,25 +43,21 @@ class TodoListItem extends StatelessWidget {
       ),
       child: GestureDetector(
         onTap: onClickItem,
-        child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 10),
-          decoration: BoxDecoration(
-            color: AppColors.kGreyCard,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.kWhite.withValues(alpha: .2)),
-          ),
+        child: GlassContainer(
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               8.kW,
               Transform.scale(
-                scale: 1.4,
+                scale: 1.3,
                 child: Checkbox(
                   value: todo.isCompleted,
                   onChanged: (_) => onToggleComplete(),
                   activeColor: AppColors.accent,
-                  checkColor: AppColors.kBorderColor,
-                  side: BorderSide(color: AppColors.kWhite),
+                  checkColor: isDark ? Colors.black : Colors.white,
+                  side: BorderSide(color: isDark ? Colors.white70 : Colors.black54),
                   shape: const CircleBorder(),
                 ),
               ),
@@ -75,8 +74,11 @@ class TodoListItem extends StatelessWidget {
                       style: todo.isCompleted
                           ? AppTypography.h4.copyWith(
                               decoration: TextDecoration.lineThrough,
+                              color: isDark ? Colors.white54 : Colors.black54,
                             )
-                          : AppTypography.h4,
+                          : AppTypography.h4.copyWith(
+                              color: isDark ? Colors.white : Colors.black,
+                            ),
                     ),
                     const SizedBox(height: 3),
                     Text(
@@ -89,24 +91,22 @@ class TodoListItem extends StatelessWidget {
                               color: AppColors.kgrey,
                             )
                           : AppTypography.bodyLg.copyWith(
-                              color: AppColors.kWhite.withValues(alpha: .5),
+                              color: isDark ? Colors.white54 : Colors.black54,
                             ),
                     ),
                   ],
                 ),
               ),
               Container(
-                margin: EdgeInsets.symmetric(vertical: 2),
-                height: context.screenHeight * .075,
-                width: context.screenWidth * .015,
+                margin: const EdgeInsets.symmetric(vertical: 4),
+                height: context.screenHeight * .06,
+                width: 4,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(100),
-                    bottomRight: Radius.circular(100),
-                  ),
+                  borderRadius: BorderRadius.circular(10),
                   color: AppColors.error,
                 ),
               ),
+              8.kW,
             ],
           ),
         ),
