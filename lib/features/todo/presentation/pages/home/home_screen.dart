@@ -86,7 +86,11 @@ class HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMi
         body: Stack(
           children: [
             Positioned.fill(
-              child: Image.asset('assets/bg_map.png', fit: BoxFit.cover),
+              child: Image.asset(
+  'assets/bg_map.png', 
+  fit: BoxFit.cover,
+  filterQuality: FilterQuality.high, // يحسن جودة العرض
+),
             ),
             if (!isDark)
               Positioned.fill(

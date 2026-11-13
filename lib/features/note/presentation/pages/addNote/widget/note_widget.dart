@@ -35,7 +35,6 @@ class _NoteWidgetState extends State<NoteWidget> {
         if (state is NoteLoadedState) {
           final notes = state.noteModel.noteList;
 
-          // إذا كانت القائمة فارغة، اعرض الشاشة الزجاجية الفارغة
           if (notes.isEmpty) {
             return const EmptyStateWidget(
               title: 'No Notes Yet',
@@ -49,16 +48,18 @@ class _NoteWidgetState extends State<NoteWidget> {
           final cardH = size.height * 0.45;
 
           return CardSwiper(
-            key: ValueKey(notes.length), // <--- هذا السطر هو السر لحل مشكلة المربع الرمادي
+            key: ValueKey(notes.length),
             controller: _controller,
             cardsCount: notes.length,
-            isLoop: notes.length > 2, // لا نكرر البطاقات إذا كانت 1 أو 2
+            isLoop: notes.length > 2,
             numberOfCardsDisplayed: notes.length.clamp(1, 3),
             maxAngle: 50,
             threshold: 50,
             padding: const EdgeInsets.only(left: 40, bottom: 130, right: 40, top: 30),
             cardBuilder: (context, index, percentThresholdX, percentThresholdY) {
-              final note = notes[index];
+              // الحل السحري: نستخدم باقي القسمة لضمان عدم خروج الفهرس عن حدود القائمة
+              final note = notes[index % notes.length]; 
+              
               return GestureDetector(
                 onTap: () => context.gotTo(
                   CreateTaskOrNoteScreen(note: note, isUpdateTaskscreen: true),

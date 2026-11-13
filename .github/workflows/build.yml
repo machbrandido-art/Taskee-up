@@ -1,3 +1,6 @@
+- name: Generate Launcher Icons
+  run: dart run flutter_launcher_icons
+  
 name: Build APK
 
 on:
