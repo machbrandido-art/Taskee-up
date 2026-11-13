@@ -35,8 +35,8 @@ class _NoteWidgetState extends State<NoteWidget> {
         if (state is NoteLoadedState) {
           final notes = state.noteModel.noteList;
 
+          // إذا كانت القائمة فارغة، اعرض الشاشة الزجاجية الفارغة
           if (notes.isEmpty) {
-            // استبدال الصورة بالويدجت الجديد
             return const EmptyStateWidget(
               title: 'No Notes Yet',
               subtitle: 'Your mind is clear.\nCapture a thought by tapping +.',
@@ -49,9 +49,10 @@ class _NoteWidgetState extends State<NoteWidget> {
           final cardH = size.height * 0.45;
 
           return CardSwiper(
+            key: ValueKey(notes.length), // <--- هذا السطر هو السر لحل مشكلة المربع الرمادي
             controller: _controller,
             cardsCount: notes.length,
-            isLoop: true,
+            isLoop: notes.length > 2, // لا نكرر البطاقات إذا كانت 1 أو 2
             numberOfCardsDisplayed: notes.length.clamp(1, 3),
             maxAngle: 50,
             threshold: 50,
