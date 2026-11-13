@@ -23,7 +23,7 @@ class GlassContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
-    
+    // في الوضع الداكن: زجاج أسود شفاف. في الفاتح: زجاج أبيض شفاف
     final bgColor = isDark 
         ? Colors.black.withValues(alpha: opacity) 
         : Colors.white.withValues(alpha: opacity + 0.2);
