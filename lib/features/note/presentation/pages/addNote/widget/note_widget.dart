@@ -35,6 +35,7 @@ class _NoteWidgetState extends State<NoteWidget> {
         if (state is NoteLoadedState) {
           final notes = state.noteModel.noteList;
 
+          // إذا كانت القائمة فارغة، اعرض الشاشة الزجاجية الفارغة
           if (notes.isEmpty) {
             return const EmptyStateWidget(
               title: 'No Notes Yet',
@@ -44,22 +45,22 @@ class _NoteWidgetState extends State<NoteWidget> {
           }
 
           final size = MediaQuery.of(context).size;
-          final cardW = size.width * 0.75;
-          final cardH = size.height * 0.45;
+          // إرجاع الأحجام الأصلية ليظهر التراص (Stack)
+          final cardW = size.width * 0.5;
+          final cardH = size.height * 0.4;
 
           return CardSwiper(
-            key: ValueKey(notes.length),
             controller: _controller,
             cardsCount: notes.length,
-            isLoop: notes.length > 2,
+            isLoop: true, // إرجاع التكرار الأصلي
             numberOfCardsDisplayed: notes.length.clamp(1, 3),
             maxAngle: 50,
             threshold: 50,
             padding: const EdgeInsets.only(left: 40, bottom: 130, right: 40, top: 30),
             cardBuilder: (context, index, percentThresholdX, percentThresholdY) {
-              // الحل السحري: نستخدم باقي القسمة لضمان عدم خروج الفهرس عن حدود القائمة
-              final note = notes[index % notes.length]; 
-              
+              // منع خطأ الخروج عن النطاق
+              final note = notes[index % notes.length];
+
               return GestureDetector(
                 onTap: () => context.gotTo(
                   CreateTaskOrNoteScreen(note: note, isUpdateTaskscreen: true),
@@ -72,7 +73,10 @@ class _NoteWidgetState extends State<NoteWidget> {
                 ),
               );
             },
-            onSwipe: (previousIndex, currentIndex, direction) => true,
+            // إجبار البطاقة على الرجوع لمكانها إذا حاول المستخدم سحبها (بدون حذف)
+            onSwipe: (previousIndex, currentIndex, direction) {
+              return false; 
+            },
           );
         }
 
